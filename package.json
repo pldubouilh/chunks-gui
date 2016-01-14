@@ -1,6 +1,6 @@
 {
   "name": "Chunks-client",
-  "version": "0.1",
+  "version": "0.0.1",
   "description": "A Chunks Client POC",
   "main": "main.js",
   "scripts": {

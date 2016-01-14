@@ -1,0 +1,27 @@
+{
+  "name": "Chunks-client",
+  "version": "0.1",
+  "description": "A Chunks Client POC",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron src/main.js"
+  },
+  "author": "pldubouilh",
+  "license": "GPL-3.0",
+  "homepage": "https://github.com/pldubouilh",
+  "dependencies": {
+    "webtorrent": "0.63.4",
+    "simple-sha1": "*",
+    "ed25519-supercop": "*",
+    "fs": "*",
+    "jsonfile": "*",
+    "glob": "*",
+    "mkdirp": "*",
+    "electron-packager": "*"
+  },
+  "scripts": {
+    "packageMac": "electron-packager . Chunks --platform=darwin --overwrite --arch=x64 --version=0.36.3 --out=builds",
+    "refresh-package": "cp -r src/* builds/Chunks-darwin-x64/Chunks.app/Contents/Resources/app/src/",
+    "start-package": "open builds/Chunks-darwin-x64/Chunks.app"
+  }
+}

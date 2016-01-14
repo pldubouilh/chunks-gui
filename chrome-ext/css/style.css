@@ -1,0 +1,270 @@
+
+html, body {
+  overflow: auto;
+  font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  -webkit-appearance : none;
+  -webkit-font-smoothing: antialiased;
+
+  -webkit-user-select: none;
+}
+
+.overlay{
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+  z-index: 99;
+}
+
+.new-key-view {
+  background-color: rgba(160,160,160,0.85);
+}
+
+.menu-view{
+  /* Nu'hin */
+}
+
+.popup{
+  position: absolute;
+  left: 10px;
+  bottom: 17px;
+  width: 400px;
+
+  background-color: #2c3e50;
+  box-shadow: crimson 5px 5px;
+  color: #fff;
+
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 2px;
+  border-color: #2c3e50;
+
+  font-size: 16px;
+  line-height: 50px;
+  text-align: center;
+  /* filter: blur(1px); // Need to be wrapped by another div*/
+
+}
+
+
+.smoothTransition{
+  -webkit-transition: all 150ms cubic-bezier(0.250, 0.250, 0.750, 0.750);
+  transition: all 150ms cubic-bezier(0.250, 0.250, 0.750, 0.750);
+
+  -webkit-transition-timing-function: cubic-bezier(0.250, 0.250, 0.750, 0.750);
+  transition-timing-function: cubic-bezier(0.250, 0.250, 0.750, 0.750);
+}
+
+.list{
+  position: absolute;
+  right: 15px;
+  bottom: 16px;
+}
+
+.pubKeyInput{
+  word-break: break-word;
+  width: 380px;
+  outline: 0;
+  border: none;
+  background-color: transparent;
+  resize: none;
+  text-align: center;
+  font-size: 1.2em;
+  font-family: helvetica;
+  padding-bottom: 20px;
+}
+
+/* Button */
+.button {
+  display: inline-block;
+  position: relative;
+  width: 120px;
+  height: 32px;
+  line-height: 32px;
+  border-radius: 2px;
+  font-size: 0.9em;
+  background-color: #fff;
+  color: #646464;
+}
+
+.button.narrow {
+  width: 60px;
+}
+
+.grey {
+  background-color: #95a5a6;
+}
+
+.blue {
+  background-color: #2980b9;
+  color: #fff;
+}
+
+.green {
+  background-color: #1abc9c;
+  color: #fff;
+}
+
+.red{
+  background-color: #e74c3c;
+}
+
+.button.raised {
+  transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: 0.2s;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+}
+
+.button.raised:active {
+  box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+  transition-delay: 0s;
+}
+
+
+/* FAB */
+.fab {
+  display: inline-block;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  color: #fff;
+  overflow: hidden;
+  transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: 0.2s;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+}
+
+
+.fab:active {
+  box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+  transition-delay: 0s;
+}
+
+
+
+/* Menu */
+.menu {
+  display: inline-block;
+  width: 240px;
+  background-color: #fff;
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
+  z-index: 100;
+  position: absolute;
+  bottom: 50px;
+  right: 50px;
+}
+
+.copy{
+  transition: color .2s ease-in;
+  position: absolute;
+  right: 17px;
+  bottom: 14px;
+  font-size: 1.2em !important;
+}
+
+.remove:hover, .copy:hover{
+  color: crimson;
+}
+
+
+.remove{
+  transition: color .2s ease-in;
+  font-size: 1.5em !important;
+  position: absolute;
+  right: 43px;
+  bottom: 12px;
+}
+
+.item {
+  position: relative;
+  height: 48px;
+  line-height: 48px;
+  color: #646464;
+  font-size: 0.9em;
+}
+
+.item:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.menu.blue > .item {
+  color: #4285f4;
+}
+
+/* Card, Dialog */
+.card, .dialog {
+  position: relative;
+  display: inline-block;
+  width: 300px;
+  /*height: 240px;*/
+  vertical-align: top;
+  background-color: #fff;
+  box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
+}
+
+.dialog {
+  box-sizing: border-box;
+  padding: 16px;
+}
+
+.dialog > .content {
+  /*height: 170px;*/
+  margin-bottom: 2em;
+  font-size: 0.9em;
+}
+
+.dialog > .content > .title {
+  font-size: 1.3em;
+}
+
+.dialog > .button {
+  width: 90px;
+  float: right;
+}
+
+
+/* Misc */
+.center {
+  text-align: center;
+}
+
+.label {
+  padding: 0 16px;
+}
+
+.label-blue {
+  color: #2980b9;
+}
+
+.label-red {
+  color: #e74c3c;
+}
+
+.center-fab{
+  margin-top: 1.3em;
+}
+
+.ripple{
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple > div{
+  position: relative;
+}
+
+/*.ink styles - the elements which will create the ripple effect. The size and position of these elements will be set by the JS code. Initially these elements will be scaled down to 0% and later animated to large fading circles on user click.*/
+.ink {
+  display: block; position: absolute;
+  background: hsl(180, 40%, 80%);
+  border-radius: 100%;
+  transform: scale(0);
+}
+
+/*animation effect*/
+.ink.animate {animation: ripple 0.65s linear;}
+@keyframes ripple {
+  /*scale the element to 250% to safely cover the entire link and fade it out*/
+  100% {opacity: 0; transform: scale(2.5);}
+}

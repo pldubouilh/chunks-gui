@@ -8,9 +8,14 @@ It's basically doing this :
 
 ### Install
 
-`npm install .` then see build binary with `npm run-script packageMac` (OSX Only - other OS see [electron-packager](https://github.com/maxogden/electron-packager)). Run the package with `npm run-script start-package`.
+ * `npm install .` to install the deps
+ * `sudo npm install -g electron-prebuilt` to download electron-prebuild
+ * `electron .`
 
-There's also a nice binary [available here](https://github.com/pldubouilh/chunks-gui/releases/download/v0.1/Chunks.zip) (still OSX only sorry !)
+
+There's also a nice binary [available here](https://github.com/pldubouilh/chunks-gui/releases/download/v0.0.1/Chunks.zip) for lazy osx users.
+
+
 
 ### How to use
 

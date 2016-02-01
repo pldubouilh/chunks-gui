@@ -80,19 +80,20 @@ function getCb(err, res){
 
   // First d/l
   if(read.v === undefined){
-    toast.pop('Booting up download engine')
     popTorrent(res.v.toString('Utf8'), dht)
   }
 
   // > No new content
-  else if(read.v.toString('Utf8') ===  res.v.toString('Utf8')){
+  else if(Buffer(read.v).toString('Utf8') ===  res.v.toString('Utf8')){
     // >> Are we seeding yet ?
     if (torrent === undefined){
-      toast.pop('No new content, let\'s turn on the torrent engine')
+      toast.pop('No new content')
       popTorrent(res.v.toString('Utf8'), dht)
     }
-    else
+    else{
       console.log('No new content, and we\'re already seeding')
+      help()
+    }
   }
 
   // > New content !
@@ -124,7 +125,7 @@ function popTorrent(magnet, htable){
 
   function elapsed(t){
     setTimeout(function(){
-      console.log('  =====' + '\nProgress : ' + t.progress*100 + '\nDownloaded: ' + t.downloaded + '\nSpeed: ' + t.downloadSpeed())
+      console.log('  =====' + '\nProgress : ' + t.progress*100 + '\nDownloaded: ' + t.downloaded + '\nSpeed: ' + t.downloadSpeed)
 
       if (t.progress == 1){
         toast.pop('Download over - now seed !')
@@ -177,8 +178,26 @@ function clearWebsite(){
   $('#website').attr('src', '')
 }
 
-function help(){
 
+function help(){
+  // Disabled as not working until BT-DHT PR #108's accepted
+  /*
+  var read = jf.readFileSync(localData)
+
+  var options = {
+    k: Buffer(read.k),
+    seq: read.seq,
+    v: Buffer(read.v),
+    sign: Buffer(read.sig)
+  }
+
+  dht.put(options, function (err, hash) {
+    if (err)
+      console.log(err)
+    else
+      console.log('We just gracefully updated the DHT ! How nice...')
+  })
+  */
 }
 
 function quit(msg){

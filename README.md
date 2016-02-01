@@ -8,19 +8,32 @@ It's basically doing this :
 
 ### Install
 
+ * `git clone https://github.com/pldubouilh/chunks-gui.git`
  * `npm install .` to install the deps
  * `sudo npm install -g electron-prebuilt` to download electron-prebuild
  * `electron .`
 
-There's also a nice binary [available here](https://github.com/pldubouilh/chunks-gui/releases/download/v0.0.1/Chunks.zip) for lazy osx users.
 
 ### How to use
 
-Click on the menu, and add my test server key : `d6c6a7b738deea4961a2f97d2bafe84583ad6d3c9c40566900da929811305028`
+Click on the menu, and add my test server key : `a86566ea5523bd0b088784bed1f671abfe7ff6a7c74511f0f7a15175022bedd8`
 
-Meanwhile the dht should do its magic and connect itself. Re-open the menu, and click on the key you just added. My test blog will be loaded and displayed. Updates will incrementally be downloaded every 5 mins.
+Meanwhile the dht should do its magic and connect itself up. Re-open the menu, and click on the key you just added. My test blog will be loaded and displayed. Updates will incrementally be downloaded every 5 mins.
 
 For the servers side stuff look at [chunks-server](https://github.com/pldubouilh/chunks-server). Have a look, posting your own content should be fairly seamless !
+
+### Security & resilience considerations
+
+* Each node is refreshing the dht slot every 5 minutes, to keep the dht as updated as possible
+* Sybil attacks. [This paper](https://www.cl.cam.ac.uk/~lw525/publications/security.pdf)
+* Some kind of solution would be to poll multiple times and get some kind of vote system ?
+  * Vote : [see bt-dht #79](https://github.com/feross/bittorrent-dht/issues/79)
+* Multiple DHT spots (and keypair) to mitigate Sybil. Sharing same token, so possible to detect update easily.
+* Investigate the possibility to use each key once, with some kind of chain so we could always be on the move.
+* Update keys OTG
+  * Disabling old key : Set token to INT_MAX to disable a ket >> Not playing nice with node, as this is a _very_ large number. [See this](https://github.com/themasch/node-bencode/issues/35)
+  * Use a new keypair at each use so we don't sit on the same DHT spot each time. [As @substack noticed](https://gist.github.com/substack/eadd13302d785dc13aac) it's fairly easy to generate stuff close to a targeted hash.
+
 
 ### Further work
 
@@ -37,24 +50,7 @@ For the servers side stuff look at [chunks-server](https://github.com/pldubouilh
 * Switch to turn off all networking
 * Switch to roll previous backup
 * Auto connect after user clicked, but DHT wasn't connected
-* Move downloaded stuff to a more user-friendly place/
 
-### AVs
-
-* Sybil attacks. [This paper](https://www.cl.cam.ac.uk/~lw525/publications/security.pdf)
-* Key updates: Lying member of the DHT pushing BS. >> Should not be an issue as each user is verifying incoming stuff but possible DOS.
-* Some kind of solution would be to poll multiple times and get some kind of vote system
-* Multiple DHT spots (and keypair) to mitigate Sybil. Sharing same token, so possible to detect update easily.
-* Investigate the possibility to use each key once, with some kind of chain so we could always be on the move.
-
-
-##### Key updates :
-
-* Update keys on the go > New (signed) public key on DHT means new pub key to use
-* Disabling old key  >> Set token to INT_MAX, so no further update possible, even if previous priv key's lost. Possible to follow path from old key to new key
-* Use a new keypair at each use so we don't sit on the same DHT spot each time. [As @substack noticed](https://gist.github.com/substack/eadd13302d785dc13aac) it's fairly easy to generate stuff close to a targeted hash. Chaining the next public key to the DHT payload could mitigate that, but it would also require to update things fairly often...
-* Attach signed DHT packet to magnet link, so every user (and not only the webmaster) can refresh DHT as DHT requires the keys to be updated at least every hour [>> see BEP44](http://www.bittorrent.org/beps/bep_0044.html). External delegates could also gracefully help keeping the DHT updated.
-  * Doesn't seems possible as the node-id is signed along the content. That (unfortunately) prevent other nodes to push content for that node-id :sadface:
 
 ### Readings
 

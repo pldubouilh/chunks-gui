@@ -1,4 +1,4 @@
-var receivedFromDht, timerToken, torrent
+var timerToken, torrent, key, pub, localData, keyname
 var connected = 0
 var DELAYUPDATE = 1 // mn
 var DELAYTIMEOUT = 2 //mn
@@ -9,33 +9,33 @@ var client = new WebTorrent()
 toast.pop("Connecting to the DHT...")
 
 dht.on('ready', function () {
-  toast.pop("DHT reached.");
+  toast.pop("DHT reached.")
   connected = 1
 })
 
 // Inform user if impossible to reach DHT
 setTimeout(function () {
   if (!connected) toast.pop("Can't seems to be able to get to the DHT...")
-}, DELAYTIMEOUT * 60 * 1000);
+}, DELAYTIMEOUT * 60 * 1000)
 
-function fireWebsite(keyname){
 
-  // Check if we're already doing some torrent stuff
-  if (torrent != undefined)
-    clearWebsite()
+function fireWebsite(k){
 
   // Read key
-  var pub = keys.readKey(keyname)
+  keyname = k
+  pub = keys.readKey(keyname)
+  key = sha1.sync(pub)
 
-  // Location of the data on DHT -- USING VAR LOCATION = BLABLA IS FREEZING ELECTRON F@$#%$#@&^%@S !
-  var key = sha1.sync(pub)
+  // Check if we're already doing some torrent stuff
+  if (torrent !== undefined)
+    clearWebsite()
 
   // Some vars
-  var magPath = whereAmI + '/src/received/' + keyname + "/magnet"
+  localData = whereAmI + '/src/received/' + keyname + "/magnet"
 
   // Make dir and touch file new files for non any non existing stuff
-  if ( ! fs.existsSync(magPath) ){
-    console.log('New address, creating dir');
+  if ( ! fs.existsSync(localData) ){
+    console.log('New address, creating dir')
     mkdirp(whereAmI + '/src/received/' + keyname)
   }
 
@@ -45,129 +45,125 @@ function fireWebsite(keyname){
   // Leave if not connected
   if(!connected) {
     toast.pop("Waiting for a DHT connection...")
-    return;
+    return
   }
 
   toast.pop('Public key : ' + pub.toString('hex'))
   toast.pop("Getting " + key.toString('hex'))
 
   // Get stuff from DHT
-  getFromDht()
+  goGet()
+}
 
-  function getFromDht(){
-    // Network reached. Now get interesting stuff
-    dht.get(key, function (err, res) {
+function goGet(){
+  dht.get(key,getCb)
+}
 
-      // Delayed loop to automatically download updates
-      timerToken = setTimeout(getFromDht, DELAYUPDATE*1000*60);
+function getCb(err, res){
 
-      // Return on error
-      if (err){
-        toast.pop('Didn\'t get any reply from the DHT')
-        console.log(err);
-        return
-      }
+  // Delayed loop to automatically download updates
+  timerToken = setTimeout(goGet, DELAYUPDATE*1000*60)
 
-      // TODO : Sanitize > is it a magnet link ?
-      receivedFromDht = res.v.toString('Utf8')
-      console.log('Received from DHT : \n   ' + receivedFromDht)
-
-      // Check what we received
-      // > No new content
-      if( jf.readFileSync(magPath) === receivedFromDht ){
-
-        // >> Are we seeding yet ?
-        if (torrent === undefined){
-          toast.pop('No new content, let\'s turn on the torrent engine')
-          popTorrent(receivedFromDht, dht)
-        }
-        else{
-          toast.pop('No new content, and we\'re already seeding')
-          return
-        }
-      }
-      // > New content !
-      else{
-        toast.pop('New content')
-
-        // Store what's received from dht
-        jf.writeFileSync(magPath, receivedFromDht)
-
-        // Remove previous torrent
-        if (torrent != undefined)
-          client.remove(torrent)
-
-        // Pop new torrent
-        popTorrent(receivedFromDht, dht)
-      }
-    })
+  // Return on error
+  if (err){
+    toast.pop('Didn\'t get any reply from the DHT')
+    console.log(err)
+    return
   }
 
-  function popTorrent(magnet, htable){
 
-    toast.pop('Passing over to the torrent engine');
+  // TODO : Sanitize > is it a magnet link ?
+  console.log('Received from DHT : \n   ' + res.v.toString('Utf8'))
 
-    // Is that really needed ?
-    var window = 'Random Stuff so we can fool webtorrent we\'re not in a browser !'
+  var read = jf.readFileSync(localData)
+  jf.writeFileSync(localData, res)
 
-    var torrentPath = whereAmI + "/src/received/" + keyname + '/'
-    client.add(magnet, {dht : htable, path : torrentPath}, function (t){
-      torrent = t
-      toast.pop('Client downloading ' + torrent.infoHash)
-      console.log('  ... there : ' + torrent.path + '\n\n');
-      elapsed(torrent)
-    })
+  // First d/l
+  if(read.v === undefined){
+    toast.pop('Booting up download engine')
+    popTorrent(res.v.toString('Utf8'), dht)
+  }
 
-    function elapsed(t){
-      setTimeout(function(){
-
-        // Print some info
-        console.log('  =====' + '\nProgress : ' + t.progress*100 + '\nDownloaded: ' + t.downloaded + '\nSpeed: ' + t.downloadSpeed());
-
-        // Delayed loop if tx not finished.
-        if (t.progress == 1){
-          toast.pop('Download over - now seed !');
-          refreshIframe()
-        }
-        else
-          elapsed(t)
-
-      }, 5000) // Every 5 secs
+  // > No new content
+  else if(read.v.toString('Utf8') ===  res.v.toString('Utf8')){
+    // >> Are we seeding yet ?
+    if (torrent === undefined){
+      toast.pop('No new content, let\'s turn on the torrent engine')
+      popTorrent(res.v.toString('Utf8'), dht)
     }
+    else
+      console.log('No new content, and we\'re already seeding')
   }
 
+  // > New content !
+  else{
+    toast.pop('New content')
 
+    if (torrent != undefined)
+      client.remove(torrent)
 
-  function refreshIframe(){
-
-    // Do we have some content ?
-    if (!fs.existsSync(magPath)){
-      jf.writeFileSync(magPath, "someData") // Ugly
-      return
-    }
-
-
-    // Force page refresh for debug
-    /*
-    // Only refresh iframe if path not being currently displayed
-    if($('#website').attr('src').indexOf(keyname) !== -1)
-      return
-    */
-
-    // Stuff should be in received/localWebsiteName/someFolder/someName.html
-
-    // (glob's solving wildcard in pathname)
-    var path = glob.sync(whereAmI + "/src/received/" + keyname + "/*/*.html")[0]
-    console.log("Displaying " + path);
-
-    // Leave if no path found
-    if(!path) return
-
-    // Display website
-    toast.pop('Displaying website')
-    $('#website').attr('src', path)
+    popTorrent(res.v.toString('Utf8'), dht)
   }
-}// End fire Website
+}
+
+function popTorrent(magnet, htable){
+
+  toast.pop('Passing over to the torrent engine')
+
+
+  // Is that really needed ?
+  var window = 'Random Stuff so we can fool webtorrent we\'re not in a browser !'
+
+  var torrentPath = whereAmI + "/src/received/" + keyname + '/'
+  client.add(magnet, {dht : htable, path : torrentPath}, function (t){
+    torrent = t
+    toast.pop('Client downloading ' + torrent.infoHash)
+    console.log('  ... there : ' + torrent.path + '\n\n')
+    elapsed(torrent)
+  })
+
+  function elapsed(t){
+    setTimeout(function(){
+      console.log('  =====' + '\nProgress : ' + t.progress*100 + '\nDownloaded: ' + t.downloaded + '\nSpeed: ' + t.downloadSpeed())
+
+      if (t.progress == 1){
+        toast.pop('Download over - now seed !')
+        refreshIframe()
+      }
+      else
+        elapsed(t)
+    }, 5000) // Every 5 secs
+  }
+}
+
+
+
+function refreshIframe(){
+
+  // Do we have some content ?
+  if (!fs.existsSync(localData)){
+    jf.writeFileSync(localData, "someData") // Ugly
+    return
+  }
+
+  // Force page refresh for debug
+  /*
+  // Only refresh iframe if path not being currently displayed
+  if($('#website').attr('src').indexOf(keyname) !== -1)
+    return
+  */
+
+  // Stuff should be in received/localWebsiteName/someFolder/someName.html
+  var path = glob.sync(whereAmI + "/src/received/" + keyname + "/*/*.html")[0]
+  if(!path) return
+
+  // Display website
+  toast.pop('Displaying website')
+  console.log("Displaying " + path)
+
+  $('#website').attr('src', path)
+}
+
 
 
 
@@ -176,11 +172,13 @@ function clearWebsite(){
   client.remove(torrent)
   torrent = undefined
 
-  // Clear timeout
-  window.clearTimeout(timerToken);
-
-  // Clear iframe
+  // Clear timeout/iframe
+  window.clearTimeout(timerToken)
   $('#website').attr('src', '')
+}
+
+function help(){
+
 }
 
 function quit(msg){
@@ -190,7 +188,6 @@ function quit(msg){
 
 var chunks = {
   fireWebsite: fireWebsite,
-  clearWebsite: clearWebsite
 }
 
 module.exports = chunks

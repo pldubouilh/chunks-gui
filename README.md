@@ -12,10 +12,7 @@ It's basically doing this :
  * `sudo npm install -g electron-prebuilt` to download electron-prebuild
  * `electron .`
 
-
 There's also a nice binary [available here](https://github.com/pldubouilh/chunks-gui/releases/download/v0.0.1/Chunks.zip) for lazy osx users.
-
-
 
 ### How to use
 
@@ -40,7 +37,7 @@ For the servers side stuff look at [chunks-server](https://github.com/pldubouilh
 * Switch to turn off all networking
 * Switch to roll previous backup
 * Auto connect after user clicked, but DHT wasn't connected
-* Move downloaded stuff to a more user-friendly place
+* Move downloaded stuff to a more user-friendly place/
 
 ### AVs
 
